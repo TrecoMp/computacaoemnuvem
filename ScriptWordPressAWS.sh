@@ -57,7 +57,7 @@ sudo sed -i "s/username_here/wp_admin/g" /var/www/html/wordpress/wp-config.php
 sudo sed -i "s/password_here/root/g" /var/www/html/wordpress/wp-config.php
 sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-sudo mv wp-cli.phar /usr/local/bin/wp
+#curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+#chmod +x wp-cli.phar
+#sudo mv wp-cli.phar /usr/local/bin/wp
 

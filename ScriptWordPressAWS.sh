@@ -56,9 +56,4 @@ sudo sed -i "s/database_name_here/wordpress/g" /var/www/html/wordpress/wp-config
 sudo sed -i "s/username_here/wp_admin/g" /var/www/html/wordpress/wp-config.php 
 sudo sed -i "s/password_here/root/g" /var/www/html/wordpress/wp-config.php
 sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
-#setando liguagem pt_BR
-echo "define ('WPLANG', 'pt_BR');" >> /var/www/html/wordpress/wp-config.php
 
-wget https://github.com/TrecoMp/computacaoemnuvem/raw/master/wordpress-arquivos/languages.tar.gz
-tar -zxvf languages.tar.gz
-cp -r languages /var/www/html/wordpress/wp-content/

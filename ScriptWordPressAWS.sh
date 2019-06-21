@@ -18,13 +18,13 @@ sudo systemctl enable apache2.service
 
 #BAIXANDO WORDPRESS
 
-#wget https://wordpress.org/latest.tar.gz
-#tar -zxvf latest.tar.gz
-#sudo mv wordpress /var/www/html/wordpress
+wget https://wordpress.org/latest.tar.gz
+tar -zxvf latest.tar.gz
+sudo mv wordpress /var/www/html/wordpress
 
 #SETANDO PERMIÇÕES NECESSÁRIAS
-#sudo chown -R www-data:www-data /var/www/html/wordpress/
-#sudo chmod -R 755 /var/www/html/wordpress/
+sudo chown -R www-data:www-data /var/www/html/wordpress/
+sudo chmod -R 755 /var/www/html/wordpress/
 
 cat <<EOF > /etc/apache2/sites-available/wordpress.conf
 <VirtualHost *:80>
@@ -50,14 +50,11 @@ sudo systemctl restart apache2
 
 #CONFIGURANDO BD DO WORDPRESS
 
-#sudo mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
+sudo mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
 
-#sudo sed -i "s/database_name_here/wordpress/g" /var/www/html/wordpress/wp-config.php
-#sudo sed -i "s/username_here/wp_admin/g" /var/www/html/wordpress/wp-config.php 
-#sudo sed -i "s/password_here/root/g" /var/www/html/wordpress/wp-config.php
-#sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
+sudo sed -i "s/database_name_here/wordpress/g" /var/www/html/wordpress/wp-config.php
+sudo sed -i "s/username_here/wp_admin/g" /var/www/html/wordpress/wp-config.php 
+sudo sed -i "s/password_here/root/g" /var/www/html/wordpress/wp-config.php
+sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 
-#curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-#chmod +x wp-cli.phar
-#sudo mv wp-cli.phar /usr/local/bin/wp
 

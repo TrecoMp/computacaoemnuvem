@@ -62,7 +62,7 @@ sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 #Esse trecho altera o arquivo para receber loguin e senha do primeiro usuario
 #Passado por export fora do script
 
-sed -i "s/\$language = '';/\$language = 'pt_BR'/" /var/www/html/wordpress/wp-admin/install.php
+sed -i "s/\$language = '';/\$language = 'pt_BR';/" /var/www/html/wordpress/wp-admin/install.php
 
 n=`grep -n '$step =' $arquivo | cut -f 1 -d :`
 sed -i ""$n"s/: 0;/: 2;/" /var/www/html/wordpress/wp-admin/install.php

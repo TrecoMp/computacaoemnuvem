@@ -62,30 +62,30 @@ sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 
 #Esse trecho altera o arquivo para receber loguin e senha do primeiro usuario
 #Passado por export fora do script
-arquivo_intall_php=/var/www/html/wordpress/wp-admin/install.php
+arquivointall=/var/www/html/wordpress/wp-admin/install.php
 
 sed -i "s/\$language = '';/\$language = 'pt_BR';/" $arquivo_install_php
 
-n=`grep -n '$step =' $arquivo_install_php | cut -f 1 -d :`
-sed -i ""$n"s/: 0;/: 2;/" $arquivo_install_php
+n=`grep -n '$step =' $arquivoinstall | cut -f 1 -d :`
+sed -i ""$n"s/: 0;/: 2;/" $arquivoinstall
 
-aux=`grep -n '$weblog_title[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
+aux=`grep -n '$weblog_title[[:blank:]]*=' $arquivoinstall | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: 'MeuSite';/" $arquivo_install_php
+sed -i ""$n"s/: '';/: 'MeuSite';/" $arquivoinstall
 
-aux=`grep -n '$user_name[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
+aux=`grep -n '$user_name[[:blank:]]*=' $arquivoinstall | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: '"$usuario"';/" $arquivo_install_php
+sed -i ""$n"s/: '';/: '"$usuario"';/" $arquivoinstall
 
-n=`grep -n '$admin_password[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d :`
-sed -i ""$n"s/: '';/: '"$senha"';/" $arquivo_install_php
+n=`grep -n '$admin_password[[:blank:]]*=' $arquivoinstall | cut -f 1 -d :`
+sed -i ""$n"s/: '';/: '"$senha"';/" $arquivoinstall
 
-n=`grep -n '$admin_password_check[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d :`
-sed -i ""$n"s/: '';/: '"$senha"';/" $arquivo_install_php
+n=`grep -n '$admin_password_check[[:blank:]]*=' $arquivoinstall | cut -f 1 -d :`
+sed -i ""$n"s/: '';/: '"$senha"';/" $arquivoinstall
 
-aux=`grep -n '$admin_email[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
+aux=`grep -n '$admin_email[[:blank:]]*=' $arquivoinstall | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: 'admin@email.com';/" $arquivo_install_php
+sed -i ""$n"s/: '';/: 'admin@email.com';/" $arquivoinstall
 
 
 

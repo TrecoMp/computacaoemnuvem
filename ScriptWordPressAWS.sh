@@ -1,10 +1,11 @@
 #!/bin/bash
 
-#Esse script necessecita do IP do banco de dados
+#Esse script necessecita do IP do banco de dados, USERNAME para o wordpress  PASSWORD para o mesmo
+#Esse usuario e senha seram usados para criar o primeiro usuario do site
 #O mesmo deve ser exportado com no IPBD
 ip_banco="${IPBD}"
-usuario=marcos
-senha=socram
+usuario="${USERNAME}"
+senha="${PASSWORD}"
 
 #INSTALA O O QUE É NECESSÁRIO
 sudo apt -y update
@@ -61,29 +62,30 @@ sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 
 #Esse trecho altera o arquivo para receber loguin e senha do primeiro usuario
 #Passado por export fora do script
+arquivo_intall_php=/var/www/html/wordpress/wp-admin/install.php
 
-sed -i "s/\$language = '';/\$language = 'pt_BR';/" /var/www/html/wordpress/wp-admin/install.php
+sed -i "s/\$language = '';/\$language = 'pt_BR';/" $arquivo_install_php
 
-n=`grep -n '$step =' $arquivo | cut -f 1 -d :`
-sed -i ""$n"s/: 0;/: 2;/" /var/www/html/wordpress/wp-admin/install.php
+n=`grep -n '$step =' $arquivo_install_php | cut -f 1 -d :`
+sed -i ""$n"s/: 0;/: 2;/" $arquivo_install_php
 
-aux=`grep -n '$weblog_title[[:blank:]]*=' /var/www/html/wordpress/wp-admin/install.php | cut -f 1 -d ":"`
+aux=`grep -n '$weblog_title[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: 'MeuSite';/" /var/www/html/wordpress/wp-admin/install.php
+sed -i ""$n"s/: '';/: 'MeuSite';/" $arquivo_install_php
 
-aux=`grep -n '$user_name[[:blank:]]*=' /var/www/html/wordpress/wp-admin/install.php | cut -f 1 -d ":"`
+aux=`grep -n '$user_name[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: '"$usuario"';/" /var/www/html/wordpress/wp-admin/install.php
+sed -i ""$n"s/: '';/: '"$usuario"';/" $arquivo_install_php
 
-n=`grep -n '$admin_password[[:blank:]]*=' /var/www/html/wordpress/wp-admin/install.php | cut -f 1 -d :`
-sed -i ""$n"s/: '';/: '"$senha"';/" /var/www/html/wordpress/wp-admin/install.php
+n=`grep -n '$admin_password[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d :`
+sed -i ""$n"s/: '';/: '"$senha"';/" $arquivo_install_php
 
-n=`grep -n '$admin_password_check[[:blank:]]*=' /var/www/html/wordpress/wp-admin/install.php | cut -f 1 -d :`
-sed -i ""$n"s/: '';/: '"$senha"';/" /var/www/html/wordpress/wp-admin/install.php
+n=`grep -n '$admin_password_check[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d :`
+sed -i ""$n"s/: '';/: '"$senha"';/" $arquivo_install_php
 
-aux=`grep -n '$admin_email[[:blank:]]*=' /var/www/html/wordpress/wp-admin/install.php | cut -f 1 -d ":"`
+aux=`grep -n '$admin_email[[:blank:]]*=' $arquivo_install_php | cut -f 1 -d ":"`
 n=`echo $aux | cut -f 2 -d " "`
-sed -i ""$n"s/: '';/: 'admin@email.com';/" /var/www/html/wordpress/wp-admin/install.php
+sed -i ""$n"s/: '';/: 'admin@email.com';/" $arquivo_install_php
 
 
 

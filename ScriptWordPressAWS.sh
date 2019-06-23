@@ -63,6 +63,7 @@ sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 #Usado para modificar o Idioma para Portugues Brasil
 sudo echo "define('WPLANG', 'pt_BR');" >> /var/www/html/wordpress/wp-config.php
 
+#Baixa o pacote de arquivo para pt_BR e salva na pasta wp-content
 wget https://github.com/TrecoMp/computacaoemnuvem/raw/master/wordpress-arquivos/languages.tar.gz
 tar -zxvf languages.tar.gz
 sudo mv languages /var/www/html/wordpress/wp-content/languages

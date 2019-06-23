@@ -60,6 +60,13 @@ sudo sed -i "s/username_here/wp_admin/g" /var/www/html/wordpress/wp-config.php
 sudo sed -i "s/password_here/root/g" /var/www/html/wordpress/wp-config.php
 sudo sed -i "s/localhost/$ip_banco/g" /var/www/html/wordpress/wp-config.php
 
+#Usado para modificar o Idioma para Portugues Brasil
+sudo echo "define('WPLANG', 'pt_BR');" > /var/www/html/wordpress/wp-config.php
+
+wget https://github.com/TrecoMp/computacaoemnuvem/raw/master/wordpress-arquivos/languages.tar.gz
+tar -zxvf languages.tar.gz
+sudo mv languages /var/www/html/wordpress/wp-content/languages
+
 #Esse trecho altera o arquivo para receber loguin e senha do primeiro usuario
 #Passado por export fora do script
 arquivoinstall="/var/www/html/wordpress/wp-admin/install.php"

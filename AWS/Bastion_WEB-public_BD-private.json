@@ -1,0 +1,282 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Criacao de um VPC, uma Subrede, um bastion, um Web e um banco de dados",
+	"Parameters": {
+		"FaixaIPVPC": {
+			"Description": "Faixa IP Utilizada no VPC",
+			"Type": "String",
+			"Default": "10.0.0.0/16",
+         "AllowedValues": ["10.0.0.0/16", "172.16.0.0/16", "192.168.0.0/16"]
+		},
+		"FaixaIPSubredePublica": {
+			"Description": "Faixa IP Utilizada na Subrede",
+			"Type": "String",
+			"Default": "10.0.10.0/24",
+         "AllowedValues": ["10.0.10.0/24", "172.16.10.0/24", "192.168.10.0/24"]
+		},
+    "FaixaIPSubredePrivada": {
+      "Description": "Faixa IP Utilizada na Subrede",
+      "Type": "String",
+      "Default": "10.0.20.0/24",
+         "AllowedValues": ["10.0.20.0/24", "172.16.20.0/24", "192.168.20.0/24"]
+    },
+      "ZonaSubrede": {
+         "Description": "Zona da Subrede",
+         "Type": "Number",
+         "Default": 1
+      },
+		"KeyName": {
+			"Description": "Nome do par de chaves",
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Default": "mykey"
+		},
+	   "InstanceType": {
+			"Description": "Tipo de instancia",
+			"Type": "String",
+			"Default": "t2.micro",
+			"AllowedValues": ["t2.micro", "t2.small", "t2.medium"]
+		},
+      "ImageId": {
+         "Description": "Identificador da Imagem",
+         "Type": "String",
+         "Default": "ami-024a64a6685d05041"
+    },
+      "WordPressUser": {
+         "Description": "Nome a ser usado como tag",
+         "Type": "String",
+         "Default": "NomeUsuario"
+      },
+      "WordPressPassword": {
+         "Description": "Nome a ser usado como tag",
+         "Type": "String",
+         "Default": "SenhaUsuario"
+      }
+   },
+	"Resources": {
+		"NovoVPC": {
+			"Type": "AWS::EC2::VPC",
+			"Properties": {
+            "CidrBlock": {"Ref": "FaixaIPVPC"},
+            "Tags": [{"Key": "Name", "Value": "NovoVPC"}]
+			}
+		},
+      "SubredePublica": {
+         "Type": "AWS::EC2::Subnet",
+         "Properties": {
+            "VpcId": {"Ref": "NovoVPC"},
+            "CidrBlock": {"Ref": "FaixaIPSubredePublica"},
+            "AvailabilityZone": {
+               "Fn::Select" : [
+                  {"Ref": "ZonaSubrede"},
+                  {
+                     "Fn::GetAZs": ""
+                  }
+               ]
+            } 
+         }
+      },
+      "SubredePrivada": {
+         "Type": "AWS::EC2::Subnet",
+         "Properties": {
+            "VpcId": {"Ref": "NovoVPC"},
+            "CidrBlock": {"Ref": "FaixaIPSubredePrivada"},
+            "AvailabilityZone": {
+               "Fn::Select" : [
+                  {"Ref": "ZonaSubrede"},
+                  {
+                     "Fn::GetAZs": ""
+                  }
+               ]
+            } 
+         }
+      },
+      "RoteadorInternet":{
+         "Type": "AWS::EC2::InternetGateway"
+      },
+      "LigacaoRoteadorVPC": {
+         "Type": "AWS::EC2::VPCGatewayAttachment",
+         "Properties": {
+            "InternetGatewayId": {"Ref": "RoteadorInternet"},
+            "VpcId": {"Ref": "NovoVPC"}
+         }
+      },
+      "TabelaRoteamentoPublica": {
+         "Type": "AWS::EC2::RouteTable",
+         "Properties": {
+            "VpcId": {"Ref": "NovoVPC"}
+         }
+      },
+      "EntradaTabelaRoteamentoPublica": {
+         "Type": "AWS::EC2::Route",
+         "Properties": {
+            "GatewayId": {"Ref": "RoteadorInternet"},
+            "DestinationCidrBlock" : "0.0.0.0/0",
+            "RouteTableId": {"Ref": "TabelaRoteamentoPublica"}
+         }
+      },
+      "LigacaoTabelaSubRedePublica": {
+         "Type": "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties": {
+            "SubnetId": {"Ref": "SubredePublica"},
+            "RouteTableId": {"Ref": "TabelaRoteamentoPublica"}
+         }
+      },
+      "TabelaRoteamentoPrivada": {
+         "Type": "AWS::EC2::RouteTable",
+         "Properties": {
+            "VpcId": {"Ref": "NovoVPC"}
+         }
+      },
+       "EntradaTabelaRoteamentoPrivada": {
+         "Type": "AWS::EC2::Route",
+         "Properties": {
+            "GatewayId": {"Ref": "RoteadorInternet"},
+            "DestinationCidrBlock" : "0.0.0.0/0",
+            "RouteTableId": {"Ref": "TabelaRoteamentoPrivada"}
+         }
+      },
+      "LigacaoTabelaSubRedePrivada": {
+         "Type": "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties": {
+            "SubnetId": {"Ref": "SubredePrivada"},
+            "RouteTableId": {"Ref": "TabelaRoteamentoPrivada"}
+         }
+      },
+     
+		  "GrupoDeSegurancaBastion": {
+			   "Type": "AWS::EC2::SecurityGroup",
+			   "Properties": {
+				 "GroupDescription": "Grupo de Seguranca Bastion",
+				 "VpcId": {"Ref": "NovoVPC"},
+				 "SecurityGroupIngress": [{
+				 	 "CidrIp": "0.0.0.0/0",
+					 "FromPort": 22,
+					 "IpProtocol": "tcp",
+					 "ToPort": 22
+				}]
+			}
+		},
+      "GrupoDeSegurancaWeb": {
+         "Type": "AWS::EC2::SecurityGroup",
+         "Properties": {
+            "GroupDescription": "Grupo de Seguranca Servidor Web",
+            "VpcId": {"Ref": "NovoVPC"},
+            "SecurityGroupIngress": [{
+               "CidrIp": "0.0.0.0/0",
+               "FromPort": 80,
+               "IpProtocol": "tcp",
+               "ToPort": 80
+            },{
+               "FromPort": 22,
+               "IpProtocol": "tcp",
+               "ToPort": 22,
+               "SourceSecurityGroupId": {"Ref": "GrupoDeSegurancaBastion"}
+            }]
+         }
+      },
+      "GrupoDeSegurancaBancoDeDados": {
+         "Type": "AWS::EC2::SecurityGroup",
+         "Properties": {
+            "GroupDescription": "Grupo de Seguranca Banco de Dados",
+            "VpcId": {"Ref": "NovoVPC"},
+            "SecurityGroupIngress": [{
+               "FromPort": 3306,
+               "IpProtocol": "tcp",
+               "ToPort": 3306,
+               "SourceSecurityGroupId": {"Ref": "GrupoDeSegurancaWeb"}
+            },{
+               "FromPort": 22,
+               "IpProtocol": "tcp",
+               "ToPort": 22,
+               "SourceSecurityGroupId": {"Ref": "GrupoDeSegurancaBastion"}
+            }]
+         }
+      },
+		"Bastion": {
+			"Type": "AWS::EC2::Instance",
+			"Properties": {
+				"ImageId": {"Ref":"ImageId"},
+				"InstanceType": {"Ref": "InstanceType"},
+				"KeyName": {"Ref": "KeyName"},
+            "NetworkInterfaces": [{
+					"AssociatePublicIpAddress": "true",
+					"DeleteOnTermination": "true",
+					"SubnetId": {"Ref": "SubredePublica"},
+					"DeviceIndex": "0",
+					"GroupSet": [{"Ref": "GrupoDeSegurancaBastion"}]
+            }]
+			}
+		},
+      "ServidorBancoDeDados": {
+         "Type": "AWS::EC2::Instance",
+         "Properties": {
+            "ImageId": {"Ref":"ImageId"},
+            "InstanceType": {"Ref": "InstanceType"},
+            "KeyName": {"Ref": "KeyName"},
+            "NetworkInterfaces": [{
+               "AssociatePublicIpAddress": "true",
+               "DeleteOnTermination": "true",
+               "SubnetId": {"Ref": "SubredePrivada"},
+               "DeviceIndex": "0",
+               "GroupSet": [{"Ref": "GrupoDeSegurancaBancoDeDados"}]
+            }],
+            "UserData" : {"Fn::Base64": { "Fn::Join": ["", [
+                                     "#!/bin/bash -ex \n",
+                                     "apt-get update \n",
+                                     "sudo apt -y install mysql-server \n",
+                                     "sudo mysql <<EOF \n",
+                                     "CREATE DATABASE wordpress; \n",
+                                     "CREATE USER 'wp_admin'@'%' IDENTIFIED BY 'root'; \n",
+                                     "GRANT ALL ON wordpress.* TO 'wp_admin'@'%';\n",
+                                     "FLUSH PRIVILEGES; \n",
+                                     "\nEOF\n\n",
+                                     "sudo sed -i 's/bind-address/#bind-address/g' /etc/mysql/mysql.conf.d/mysqld.cnf \n",
+                                     "sudo sed -i 's/skip-external-locking/#skip-external-locking/g' /etc/mysql/mysql.conf.d/mysqld.cnf \n",
+                                     "sudo systemctl restart mysql\n"
+                                 ]]}}
+         }
+      },
+      "ServidorWeb": {
+         "Type": "AWS::EC2::Instance",
+         "Properties": {
+            "ImageId": {"Ref":"ImageId"},
+            "InstanceType": {"Ref": "InstanceType"},
+            "KeyName": {"Ref": "KeyName"},
+            "NetworkInterfaces": [{
+               "AssociatePublicIpAddress": "true",
+               "DeleteOnTermination": "true",
+               "SubnetId": {"Ref": "SubredePublica"},
+               "DeviceIndex": "0",
+               "GroupSet": [{"Ref": "GrupoDeSegurancaWeb"}]  
+            }],
+            "UserData" : {"Fn::Base64": { "Fn::Join": ["", [
+                                     "#!/bin/bash -ex \n",
+                                     "export IPBD=", {"Fn::GetAtt": ["ServidorBancoDeDados", "PrivateIp"]}, "\n",
+                                     "export USERNAME=", {"Ref":"WordPressUser"}, "\n",
+                                     "export PASSWORD=", {"Ref":"WordPressPassword"}, "\n",
+                                     "wget https://raw.githubusercontent.com/TrecoMp/computacaoemnuvem/master/ScriptWordPressAWS.sh \n",
+                                     "chmod +x ScriptWordPressAWS.sh \n",
+                                     "./ScriptWordPressAWS.sh \n"
+                                 ]]}}
+         }
+      }
+	},
+	"Outputs": {
+    "EnderecoWebPublico": {
+         "Value": {"Fn::GetAtt": ["ServidorWeb", "PublicIp"]},
+         "Description": "Endereco interno do servidor"
+      },
+    "EnderecoWebPrivado": {
+         "Value": {"Fn::GetAtt": ["ServidorWeb", "PrivateIp"]},
+         "Description": "Endereco interno do servidor"
+      },
+    "EnderecoBancodeDados":{
+         "Value": {"Fn::GetAtt": ["ServidorBancoDeDados", "PrivateIp"]},
+         "Description" : "Endereco externo do BD"
+      },
+		"EnderecoBastionPublico": {
+			"Value": {"Fn::GetAtt": ["Bastion", "PublicIp"]},
+			"Description": "Endereco para acessar o servidor Bastion"
+		  }      
+	}
+}
